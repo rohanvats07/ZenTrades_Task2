@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON File Uploader</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #c3dee4; 
+    }
+
+    section {
+      text-align: center;
+    }
+
+    label {
+      color: #030101; 
+      margin-right: 10px;
+    }
+
+    #file-upload {
+      padding: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); 
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #120e0e; 
+      color: #efe7e7; 
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); 
+    }
+
+    button:hover {
+      background-color: #ddd; 
+    }
+
+    #file-info {
+      margin-top: 10px;
+      color: #030101; 
+    }
+
+    #supported-files {
+      margin-top: 10px;
+      color: #030101; 
+    }
+  </style>
+</head>
+<body>
+
+<section>
+  <div>
+    <label for="file-upload">Upload JSON or CSV File:</label>
+    <input type="file" id="file-upload" accept=".json, .csv">
+  </div>
+  <br>
+  <div>
+    <button onclick="uploadFile()">Upload</button>
+
+  </div>
+  <div id="file-info"></div>
+  <div id="supported-files">Supported file type(s): .CSV, .JSON</div>
+</section>
+
+<script>
+
+  function uploadFile() {
+      const fileInput = document.getElementById('file-upload');
+
+      if (fileInput.files.length > 0) {
+        const fileName = fileInput.files[0].name;
+        const fileExtension = fileName.split('.').pop().toLowerCase();
+
+        if (fileExtension === 'json' || fileExtension === 'csv') {
+          window.location.href = `properties.html?file=${encodeURIComponent(fileName)}`;
+        } else {
+          alert('Invalid file format. Please select a JSON or CSV file.');
+          fileInput.value = '';
+        }
+      } else {
+        alert('No file selected');
+      }
+    }
+
+  async function postData(url, data) {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: data,
+    });
+
+    if (!response.ok) {
+      console.error('Error:', response.statusText);
+    } else {
+      window.location.href = 'code.html';
+    }
+
+  }
+
+  function displaypage() {
+      window.location.href = 'code.html';
+    }
+</script>
+
+</body>
+</html>

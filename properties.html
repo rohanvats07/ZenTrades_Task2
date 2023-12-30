@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Properties</title>
+  <link rel="stylesheet" href="propstyle.css">
+</head>
+<body>
+
+  <h1>File Properties</h1>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const fileName = params.get('file');
+
+      document.body.innerHTML += `
+        <p>File Name: ${fileName}</p>
+
+        <label for="file-type">File Type:</label>
+        <select id="file-type">
+          <option value="json">JSON</option>
+          <option value="csv">CSV</option>
+        </select>
+
+        <label for="character-encoding">Character Encoding:</label>
+        <input type="text" id="character-encoding" value="UTF-8" readonly>
+
+        <label for="delimiter">Delimiter:</label>
+        <select id="delimiter">
+          <option value="comma">Comma</option>
+          <option value="space">Space</option>
+        </select>
+
+        <label>
+          <input type="checkbox" id="has-header"> Has Header
+        </label>
+
+        <button onclick="processProperties()">Submit</button>
+      `;
+    });
+
+    function processProperties() {
+      const fileType = document.getElementById('file-type').value;
+      const characterEncoding = document.getElementById('character-encoding').value;
+      const delimiter = document.getElementById('delimiter').value;
+      const hasHeader = document.getElementById('has-header').checked;
+
+      const redirectUrl = `code.html?fileType=${encodeURIComponent(fileType)}&characterEncoding=${encodeURIComponent(characterEncoding)}&delimiter=${encodeURIComponent(delimiter)}&hasHeader=${hasHeader}`;
+      window.location.href = redirectUrl;
+    }
+  </script>
+
+</body>
+</html>

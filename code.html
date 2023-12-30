@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #cff797;
+        }
+
+        #productList {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: justify;
+        }
+
+        th {
+            background-color: #4db049; 
+        }
+
+        #productList th, #productList td {
+            font-weight: bold;
+        }
+
+        .product {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .product:hover {
+            transform: scale(1.02);
+        }
+
+        .product h3 {
+            margin: 0;
+            color: #333; 
+        }
+
+        .product p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .product hr {
+            margin: 10px 0;
+            border: 0;
+            height: 1px;
+            background-color: #ccc; 
+        }
+
+        .field-list {
+            width: 200px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .field-list select {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 20px;
+        }
+
+        .btn-container button {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #fileInput {
+            margin-top: 20px;
+        }
+
+        #productList {
+        display: none;
+    }
+
+    .btn-container1 {
+        display: inline-block; 
+        vertical-align: middle;
+        margin: 10px;
+    }
+
+    .btn-container1 button {
+        display: inline-block; 
+        margin-right: 10px; 
+    }
+
+    #nextBtn{
+        background-color: #4db049;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    #cancelBtn{
+        background-color: #fff;
+        color: #ee2727;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    </style>
+</head>
+<body>
+
+    <div class="field-list">
+        <strong>Available Fields:</strong>
+        <select id="availableFields" multiple>
+            <option value="Subcategory">Subcategory</option>
+            <option value="Title">Title</option>
+            <option value="Price">Price</option>
+            <option value="Popularity">Popularity</option>
+        </select>
+    </div>
+
+    <div class="btn-container">
+        <button id="addBtn" onclick="moveOptions('availableFields', 'selectedFields')">>></button>
+        <button id="removeBtn" onclick="moveOptions('selectedFields', 'availableFields')"><<</button>
+    </div>
+
+    <div class="field-list">
+        <strong>Fields to be displayed:</strong>
+        <select id="selectedFields" multiple></select>
+        <div class="btn-container1">
+            <button id="nextBtn" onclick="redirectToNextPage()">Next</button>
+            <button id="cancelBtn" onclick="cancel()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="productList">
+        <table>
+            <thead>
+                <tr>
+                    <th>Subcategory</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Popularity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table body content will be added dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function cancel() {
+            location.reload();
+        }
+
+        
+        function handleFile() {
+                    const fileInput = document.getElementById('fileInput');
+                    const file = fileInput.files[0];
+
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const content = JSON.parse(e.target.result);
+                            displayData(content);
+                            updateTable();
+                        };
+
+                        reader.readAsText(file);
+                    } else {
+                        console.error("No file selected.");
+                    }
+                }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const apiURL = "https://s3.amazonaws.com/open-to-cors/assignment.json";
+
+            fetch(apiURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Received data from the API:", data);
+
+                    if (data && data.products) {
+                        const products = Object.values(data.products);
+                        products.sort((a, b) => b.popularity - a.popularity);
+
+                        displayData(products);
+                    } else {
+                        console.error("Data received from the API is not in the expected format.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+
+            function displayData(products) {
+                const tbody = document.querySelector('#productList tbody');
+
+                tbody.innerHTML = '';
+
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.subcategory}</td> 
+                        <td>${product.title}</td>
+                        <td>${product.price}</td>
+                        <td>${product.popularity}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+        });
+
+        function moveOptions(sourceId, targetId) {
+            const sourceSelect = document.getElementById(sourceId);
+            const targetSelect = document.getElementById(targetId);
+
+            const selectedOptions = Array.from(sourceSelect.selectedOptions);
+
+            selectedOptions.forEach(option => {
+                sourceSelect.remove(option.index);
+                targetSelect.add(option);
+            });
+
+            updateTable();
+        }
+
+        function updateTable() {
+    const selectedFields = Array.from(document.getElementById('selectedFields').options);
+    const table = document.getElementById('productList');
+
+    if (selectedFields.length > 0) {
+        table.style.display = 'none';
+
+        const headers = document.querySelectorAll('#productList thead th');
+        const cells = document.querySelectorAll('#productList tbody tr td');
+
+        headers.forEach(header => header.style.display = 'none');
+        cells.forEach(cell => cell.style.display = 'none');
+
+        selectedFields.forEach(field => {
+            const columnIndex = Array.from(headers).findIndex(header => header.textContent === field.value);
+            if (columnIndex !== -1) {
+                headers[columnIndex].style.display = '';
+                cells.forEach(cell => cell.parentNode.children[columnIndex].style.display = '');
+            }
+        });
+    } else {
+        table.style.display = 'none';
+    }
+}
+
+function redirectToNextPage() {
+    const selectedFields = Array.from(document.getElementById('selectedFields').options).map(option => option.value);
+    const tableData = [];
+
+    const headers = Array.from(document.querySelectorAll('#productList thead th'));
+    const rows = document.querySelectorAll('#productList tbody tr');
+
+    rows.forEach(row => {
+        const rowData = {};
+        selectedFields.forEach(field => {
+            const columnIndex = headers.findIndex(header => header.textContent === field);
+            if (columnIndex !== -1) {
+                rowData[field] = row.children[columnIndex].textContent;
+            }
+        });
+        tableData.push(rowData);
+    });
+
+    const styles = `
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #cff797;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 6px;
+                text-align: justify;
+            }
+
+            th {
+                background-color: #4db049; 
+            }
+
+            th, td {
+                font-weight: bold;
+                text-align: center;
+            }
+        </style>
+    `;
+
+
+
+    const newPageContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Selected Fields</title>
+            ${styles}
+        </head>
+        <body>
+            <h2>Selected Fields</h2>
+            <table>
+                <thead>
+                    <tr>
+                        ${selectedFields.map(field => `<th>${field}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableData.map(row =>
+                        `<tr>${selectedFields.map(field => `<td>${row[field]}</td>`).join('')}</tr>`
+                    ).join('')}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `;
+
+    const newPage = window.open();
+    newPage.document.write(newPageContent);
+}
+
+    </script>
+</body>
+</html>
