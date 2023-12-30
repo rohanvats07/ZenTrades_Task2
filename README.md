@@ -32,7 +32,7 @@ Task 3. Display the data in table format of your choice with Title, Price ordere
 1)
 ![6](https://github.com/rohanvats07/ZenTrades_Task2/assets/71967186/317ca4e2-49b4-4d4b-ad2a-1aa780622d5a)
 
-2) 
+2) Showing only the Title in descending popularity
 ![7](https://github.com/rohanvats07/ZenTrades_Task2/assets/71967186/61f3c2a4-9bbc-4ab0-8ec3-0956ee640dcd)
 
 3)
